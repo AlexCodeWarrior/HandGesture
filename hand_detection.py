@@ -24,17 +24,17 @@ class HandTracker:
         # get image from webcam
             image = self.webcam.read()
 
-        # detect hand gesture in image
+        # look for the OK sign to start up
             is_okay = self.detection.is_item_detected_in_image('data/ok_cascade_48x30.xml', image )
 
             if is_okay:
-             # okay gesture moves cube towards us
+             # recognized OK Sign
                 print("OK SIGN ")
+            # move to modes stage
                 self._modes()
 
             if cv2.waitKey(1) == 27 :
-                self.webcam.stop()
-                self.webcam.stream.release()
+                self._shut_down()
                 break
 
 
@@ -43,10 +43,13 @@ class HandTracker:
         # get image from webcam
             image = self.webcam.read()
 
+        #different classifier for different modes
             is_vicky = self.detection.is_item_detected_in_image('data/face.xml', image )
 
+        #check which hand gesture detected
+
             if is_vicky:
-             # vicky gesture moves cube away from us
+             # v-sign
                 print("FACE ")
             if cv2.waitKey(1) == 27 :
                 self.webcam.stop()
@@ -54,6 +57,7 @@ class HandTracker:
                 break
         return
 
+    #stops webcam and return camera
     def _shut_down (self):
         self.webcam.stop()
         self.webcam.stream.release()
