@@ -4,7 +4,6 @@ import cv2
 from webcam import WebcamVideoStream
 from detections import Detection
 
-is_okay = False
 
 class HandTracker:
 
@@ -12,24 +11,29 @@ class HandTracker:
         self.webcam = WebcamVideoStream()
         self.webcam.start()
         self.detection = Detection()
-
+        
+        #hand gesture status
+        self.is_okay = False
+        self.is_vhand = False
+        self.is_phand = False
+        
+        #get location of hand when tracking
         self.x_axis = 0.0
         self.y_axis = 0.0
 
 
     def _start_up(self):
-        global is_okay
-
-        while is_okay == False:
+        
+        while  self.is_okay == False:
         # get image from webcam
             image = self.webcam.read()
 
         # look for the OK sign to start up
-            is_okay = self.detection.is_item_detected_in_image('data/ok_cascade_48x30.xml', image )
-
-            if is_okay:
+            self.is_okay = self.detection.is_item_detected_in_image('data/ok_cascade_48x48.xml', image )
+            
+            if self.is_okay:
              # recognized OK Sign
-                print("OK SIGN ")
+                print("OK GESTURE Detected ")
             # move to modes stage
                 self._modes()
 
@@ -44,18 +48,28 @@ class HandTracker:
             image = self.webcam.read()
 
         #different classifier for different modes
-            is_vicky = self.detection.is_item_detected_in_image('data/face.xml', image )
-
+            self.is_vhand = self.detection.is_item_detected_in_image('data/vhand_cascade.xml', image )
+            self.is_phand =self.detection.is_item_detected_in_image('data/phand_cascade.xml', image )
         #check which hand gesture detected
 
-            if is_vicky:
+            if self.is_vhand:
              # v-sign
-                print("FACE ")
+                print("V-SIGN detected (Turn on/off Lights)")
+                self.x_axis= self.detection.x_axis
+                self.y_axis=self.detection.y_axis
+                print("x_axis: " , self.x_axis , "y_axis: " , self.y_axis)
+            if self.is_phand:
+                print("P-SIGN detected (Lamp follows hand gesture) ")
             if cv2.waitKey(1) == 27 :
-                self.webcam.stop()
-                self.webcam.stream.release()
+                self._shut_down()
                 break
         return
+            
+    def _powerButton(self):
+        #turn on/off L.E.D
+        
+        return
+    
 
     #stops webcam and return camera
     def _shut_down (self):

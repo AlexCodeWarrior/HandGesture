@@ -1,8 +1,10 @@
 import cv2
 
 class Detection(object):
-
-
+    def __init__(self):
+        self.x_axis = 0.0
+        self.y_axis = 0.0
+        
     def is_item_detected_in_image(self, item_cascade_path, image):
 
         # detect items in image
@@ -13,7 +15,8 @@ class Detection(object):
         # debug: draw rectangle around detected items
         for (x,y,w,h) in items:
             cv2.rectangle(image,(x,y),(x+w,y+h),(255,0,0),2)
-
+            self.x_axis= x
+            self.y_axis= y
         # debug: show detected items in window
         cv2.imshow('OpenCV Detection', image)
 
