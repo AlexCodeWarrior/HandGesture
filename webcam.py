@@ -2,12 +2,14 @@
 
 from threading import Thread, Lock
 import cv2
+import time
 
 class WebcamVideoStream :
     def __init__(self, src = 0, width = 320, height = 240) :
         self.stream = cv2.VideoCapture(src)
         self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+        self.frame = self.stream.get(cv2.CAP_PROP_FPS)
         (self.grabbed, self.frame) = self.stream.read()
         self.started = False
         self.read_lock = Lock()
@@ -28,7 +30,19 @@ class WebcamVideoStream :
             self.grabbed, self.frame = grabbed, frame
             self.read_lock.release()
 
+    def camera(self):
+        return self.stream
+    
+    
+
     def read(self) :
+        self.read_lock.acquire()
+        frame = self.frame.copy()
+        self.read_lock.release()
+        return frame
+    
+    def waste(self) :
+        time.sleep(.003)
         self.read_lock.acquire()
         frame = self.frame.copy()
         self.read_lock.release()
